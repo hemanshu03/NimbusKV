@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.0.0] - Unreleased
+## [3.0.0] - 2026-08-10
 
 **Project renamed from `livedict` to `nimbuskv`.** The import path is now `from nimbuskv import NimbusKV` (previously `from livedict import LiveDict`). See the migration note in the README for details. The old `livedict` package on PyPI will remain published as a deprecated stub pointing here.
 
