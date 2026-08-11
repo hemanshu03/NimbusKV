@@ -1,4 +1,10 @@
-# NimbusKV v3.0.0
+# NimbusKV v3.0.1
+
+[![PyPI](https://img.shields.io/pypi/v/nimbuskv.svg)](https://pypi.org/project/nimbuskv/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/nimbuskv.svg)](https://pypi.org/project/nimbuskv/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/hemanshu03/NimbusKV/blob/latest/LICENSE)
+[![Tests](https://github.com/hemanshu03/NimbusKV/actions/workflows/tests.yml/badge.svg)](https://github.com/hemanshu03/NimbusKV/actions/workflows/tests.yml)
+[![Free-threading ready](https://img.shields.io/badge/free--threading-3.13t%20%7C%203.14t-brightgreen.svg)](https://py-free-threading.github.io/)
 
 **Reactive, TTL-aware, optimistic-concurrency key/value store for Python - lock-free reads always, lock-free writes on free-threaded Python (3.13t/3.14t), correct and adaptive on standard GIL Python.**
 
@@ -148,6 +154,28 @@ NimbusKV (public API)
 v3.0.0 is a from-scratch rewrite. Core, TTL, reactive subscriptions, `atomic()`, and all three persistence backends are implemented and tested for correctness (race-free under concurrent writers, verified with 10,000+ concurrent operations across 20 threads on standard Python - free-threaded benchmarks pending, to be published once run on a 3.14t interpreter).
 
 Real sandboxing (proper isolation, not a timeout wrapper) is planned for a future release.
+
+---
+
+## Documentation
+
+Full detailed docs, versioned:
+- [`docs/v3.0.1.md`](docs/v3.0.1.md) - current release
+- [`docs/v3.0.0.md`](docs/v3.0.0.md) - original release (includes a known-issue note for anyone still pinned to it)
+- [`dev/API_REFERENCE.md`](dev/API_REFERENCE.md) - full generated API surface, straight from the docstrings
+
+---
+
+## Development / Contributing
+
+```bash
+git clone https://github.com/hemanshu03/NimbusKV.git
+cd NimbusKV
+pip install -e ".[dev]"
+pytest tests/ -v
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, and the [`examples/`](examples/) folder for runnable end-to-end scripts. Free-threaded (3.13t/3.14t) testing is run in CI, but if you have a free-threaded interpreter locally, running the suite there too is especially valuable - that's the runtime this library's core claim is actually about.
 
 ---
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.1] - 2026-08-11
+
+Fixed
+* **`atomic()` did not notify subscribers.** `NimbusKV.atomic()` was calling the store's internal `mutate()` directly, bypassing the notification step entirely - so `subscribe()` and anything built on it (including `wait_for()`) silently never fired for changes made via `atomic()`, even though the value itself updated correctly. Fixed by giving `ReactiveStore` its own `atomic()` that performs the read-modify-write and the notification as a single operation; `NimbusKV.atomic()` now delegates to it. Covered by regression tests in `tests/test_reactive.py`.
+
+Added
+* `tests/` - pytest suite (36 tests) covering core CRUD, concurrency correctness, TTL, reactive subscriptions, async, and all persistence backends.
+* `.github/workflows/tests.yml` - CI across standard Python 3.9–3.13 and free-threaded 3.13t/3.14t.
+* `.github/FUNDING.yml`, `CONTRIBUTING.md`.
+* `dev/API_REFERENCE.md`, generated from the library's own docstrings via `dev/generate_api_reference.py`.
+* `examples/session_store.py`, `examples/worker_pool.py` - realistic end-to-end usage.
+* `pyproject.toml` at the repo root (previously missing entirely - `pip install -e .` did not work from a fresh clone).
+
 ## [3.0.0] - 2026-08-10
 
 **Project renamed from `livedict` to `nimbuskv`.** The import path is now `from nimbuskv import NimbusKV` (previously `from livedict import LiveDict`). See the migration note in the README for details. The old `livedict` package on PyPI will remain published as a deprecated stub pointing here.
