@@ -1,4 +1,4 @@
-"""runtime.py — NimbusKV v3.
+"""runtime.py - NimbusKV v3.
 
 Detects the interpreter's concurrency model (standard GIL vs free-threaded)
 so the store can adapt its concurrency strategy at import time, once, without

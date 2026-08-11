@@ -1,4 +1,4 @@
-"""reactive_core.py — NimbusKV v3 core engine.
+"""reactive_core.py - NimbusKV v3 core engine.
 
 This module implements the optimistic-concurrency state container that
 every other part of NimbusKV sits on top of. If you're just using

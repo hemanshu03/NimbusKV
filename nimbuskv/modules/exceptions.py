@@ -1,4 +1,4 @@
-"""exceptions.py — NimbusKV v3."""
+"""exceptions.py - NimbusKV v3."""
 
 
 class NimbusKVError(Exception):

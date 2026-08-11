@@ -1,4 +1,4 @@
-"""__init__.py — NimbusKV v3 module."""
+"""__init__.py - NimbusKV v3 module."""
 from .nimbuskv_v3 import NimbusKV
 from .exceptions import NimbusKVError
 from .reactive_core import ConflictRetryExceeded, Subscription

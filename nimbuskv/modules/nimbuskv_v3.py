@@ -1,4 +1,4 @@
-"""nimbuskv_v3.py — NimbusKV v3 public API.
+"""nimbuskv_v3.py - NimbusKV v3 public API.
 
 This is the module you actually use: ``from nimbuskv import NimbusKV``.
 
