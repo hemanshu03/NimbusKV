@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nimbuskv"
+version = "3.0.1"
+description = "Reactive, TTL-aware, optimistic-concurrency key/value store for Python. Lock-free reads always; lock-free writes on free-threaded Python (3.13t/3.14t), correct and adaptive on standard GIL Python."
+readme = "README.md"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Hemanshu Vaidya", email = "hemanshuvaidya64@gmail.com" }
+]
+dependencies = [
+    "immutables>=0.20"
+]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Free Threading :: 3 - Stable",
+    "Operating System :: OS Independent"
+]
+
+[project.optional-dependencies]
+redis = ["redis>=4.0"]
+dev = ["pytest>=7.0", "pytest-asyncio>=0.21", "fakeredis>=2.0"]
+
+[project.urls]
+Homepage = "https://github.com/hemanshu03/NimbusKV"
+Source = "https://github.com/hemanshu03/NimbusKV"
+Issues = "https://github.com/hemanshu03/NimbusKV/issues"
+
+[tool.setuptools]
+packages = ["nimbuskv", "nimbuskv.modules"]
+
+[tool.setuptools.package-data]
+nimbuskv = ["py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-q"
+testpaths = ["tests"]
+asyncio_mode = "auto"

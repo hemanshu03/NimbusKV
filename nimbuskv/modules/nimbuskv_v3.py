@@ -289,16 +289,9 @@ class NimbusKV:
             >>> # Safe even with many threads calling this concurrently:
             >>> # no lost updates, no lock held during the increment.
         """
-        box: Dict[str, Any] = {}
-
-        def _txn(m):
-            current = m.get(key, default)
-            box["new_value"] = fn(current)
-            return m.set(key, box["new_value"])
-
-        self._store.mutate(_txn)
-        self._backend.persist_set(key, box["new_value"], None)
-        return box["new_value"]
+        new_value = self._store.atomic(key, fn, default=default)
+        self._backend.persist_set(key, new_value, None)
+        return new_value
 
     def wait_for(
         self,

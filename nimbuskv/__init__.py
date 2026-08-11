@@ -6,4 +6,4 @@ Adapts automatically between standard GIL Python and free-threaded Python
 from .modules import *
 from .modules import __all__
 
-__version__ = "3.0.0"
+__version__ = "3.0.1"

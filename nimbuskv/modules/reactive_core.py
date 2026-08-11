@@ -311,6 +311,57 @@ class ReactiveStore:
             self._notify(k, "set", None if old is _MISSING else old, v)
         return new
 
+    def atomic(self, key: str, fn: Callable[[Any], Any], default: Any = None) -> Any:
+        """Atomic compound read-modify-write on a single key, with a
+        notification fired after the winning swap -- e.g. a counter
+        increment that's safe under concurrent writers **and** visible
+        to :meth:`subscribe` / anything built on it (such as
+        :meth:`livedict.LiveDict.wait_for`... see
+        :class:`livedict.LiveDict.atomic` for the public-facing
+        version most users call).
+
+        This exists at the ``ReactiveStore`` level (not just on
+        :class:`livedict.LiveDict`) specifically so the notification is
+        part of the same atomic operation as the swap -- computing the
+        new value via :meth:`mutate` and firing the notification as a
+        separate step would leave a window where a subscriber could
+        read a value that hasn't been announced yet, or never gets
+        announced at all if the calling code forgets to notify (this
+        was a real bug: an earlier version of the higher-level
+        ``atomic()`` called :meth:`mutate` directly and never notified
+        subscribers at all, so :meth:`subscribe` and anything built on
+        it -- like a blocking wait on a condition -- silently never
+        fired for atomic updates).
+
+        Args:
+            key: The key to read, transform, and write back.
+            fn: A **pure** function ``(current_value) -> new_value``.
+                May run more than once under contention.
+            default: Value passed to ``fn`` if ``key`` doesn't exist
+                yet.
+
+        Returns:
+            The new value that was written.
+
+        Example:
+            >>> store.set("counter", 0)
+            >>> store.atomic("counter", lambda v: v + 1)
+            1
+        """
+        box: Dict[str, Any] = {}
+
+        def _txn(m: immutables.Map) -> immutables.Map:
+            old = m.get(key, _MISSING)
+            box["old"] = old
+            current = m.get(key, default)
+            box["new_value"] = fn(current)
+            return m.set(key, box["new_value"])
+
+        self.mutate(_txn)
+        old = box["old"]
+        self._notify(key, "set", None if old is _MISSING else old, box["new_value"])
+        return box["new_value"]
+
     def delete(self, key: str, _event: str = "delete") -> bool:
         """Delete a key if present.
 

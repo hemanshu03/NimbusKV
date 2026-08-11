@@ -1,9 +1,12 @@
 build/
 dist/
 nimbuskv.egg-info/
-dev/
-__pycache__
-.pytest_cache
-*.yml
 build_and_upload/
-tests/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+*.db
+.venv/
+venv/
