@@ -1,4 +1,4 @@
-"""testfile.py — NimbusKV v3 smoke tests.
+"""testfile.py - NimbusKV v3 smoke tests.
 
 Rewritten for the v3 API. The old version used work_mode=, register_callback,
 client=, and lock()/unlock() -- none of which exist in v3. Run any function

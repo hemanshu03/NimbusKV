@@ -1,4 +1,4 @@
-"""ttl.py — NimbusKV v3 TTL / expiry.
+"""ttl.py - NimbusKV v3 TTL / expiry.
 
 TTL is deliberately a thin layer on top of :class:`~.reactive_core.ReactiveStore`
 rather than baked into the core -- ``ReactiveStore`` knows nothing about
