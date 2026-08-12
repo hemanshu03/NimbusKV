@@ -138,21 +138,27 @@ State is rehydrated from the backend on startup (already-expired keys are skippe
 
 ```
 NimbusKV (public API)
- ├─ ReactiveStore     in-memory, immutable-snapshot, optimistic-concurrency core
- │                     - readers: lock-free, always
- │                     - writers: build new snapshot, atomic swap, retry on conflict
- │                     - adapts to LOCK_FREE_MODE (free-threaded vs GIL, detected once)
- ├─ ExpiryScheduler    background thread, min-heap, fires TTL expiry against the store
- └─ PersistenceBackend write-through mirror + startup rehydration
-                        (NullBackend / SQLiteBackend / RedisBackend)
+ ├─ ReactiveStore
+ │   in-memory, immutable-snapshot,
+ │   optimistic-concurrency core
+ │   - readers: lock-free, always
+ │   - writers: build new snapshot,
+ │     atomic swap, retry on conflict
+ │   - adapts to LOCK_FREE_MODE
+ │     (free-threaded vs GIL, detected once)
+ ├─ ExpiryScheduler
+ │   background thread, min-heap,
+ │   fires TTL expiry against the store
+ └─ PersistenceBackend
+     write-through mirror + startup rehydration
+     (NullBackend / SQLiteBackend / RedisBackend)
 ```
 
 ---
 
 ## Status
 
-v3.0.0 is a from-scratch rewrite. Core, TTL, reactive subscriptions, `atomic()`, and all three persistence backends are implemented and tested for correctness (race-free under concurrent writers, verified with 10,000+ concurrent operations across 20 threads on standard Python - free-threaded benchmarks pending, to be published once run on a 3.14t interpreter).
-
+v3.0.1 is a patch release on top of the v3.0.0 from-scratch rewrite — no architectural changes, so the status below still describes the current design. Core, TTL, reactive subscriptions, atomic(), and all three persistence backends are implemented and tested for correctness (race-free under concurrent writers, verified with 10,000+ concurrent operations across 20 threads on standard Python - free-threaded benchmarks pending, to be published once run on a 3.14t interpreter).
 Real sandboxing (proper isolation, not a timeout wrapper) is planned for a future release.
 
 ---
