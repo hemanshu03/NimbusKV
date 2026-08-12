@@ -20,6 +20,7 @@ get confused for new ones.
    "registration" step -- main.py does not need any other changes.
 ================================================================================
 """
+
 import importlib
 import json
 import os
@@ -27,6 +28,7 @@ import sys
 import time
 import traceback
 import matplotlib
+
 matplotlib.use("Agg")  # no X server needed for chart rendering
 
 # --------------------------------------------------------------------------
@@ -85,18 +87,29 @@ def _make_summary_dashboard(all_results, sysinfo):
         n_pass = sum(1 for r in correctness if r.get("passed"))
         n_total = len(correctness)
         color = "#10b981" if n_pass == n_total else "#ef4444"
-        ax.text(0.5, 0.6, f"{n_pass}/{n_total}", ha="center", fontsize=44,
-                fontweight="bold", color=color)
+        ax.text(
+            0.5,
+            0.6,
+            f"{n_pass}/{n_total}",
+            ha="center",
+            fontsize=44,
+            fontweight="bold",
+            color=color,
+        )
         ax.text(0.5, 0.32, "correctness checks passed", ha="center", fontsize=12)
     else:
         ax.text(0.5, 0.5, "(no correctness suite registered)", ha="center", fontsize=10)
 
     ax = axes[1]
-    scal = all_results.get("b03_scalability_memory_ttl_subscribe", {}).get("scalability_vs_keycount")
+    scal = all_results.get("b03_scalability_memory_ttl_subscribe", {}).get(
+        "scalability_vs_keycount"
+    )
     if scal:
         xs = sorted(int(k) for k in scal.keys())
+
         def _v(x):
             return scal[x] if x in scal else scal[str(x)]
+
         ys = [_v(x)["get"]["p50"] * 1e6 for x in xs]
         ax.plot(xs, ys, marker="o", color="#2563eb")
         ax.set_xscale("log")
@@ -107,10 +120,12 @@ def _make_summary_dashboard(all_results, sysinfo):
         ax.axis("off")
         ax.text(0.5, 0.5, "(no scalability data)", ha="center", fontsize=10)
 
-    footer = (f"NimbusKV benchmark suite v{VERSION} | {sysinfo['logical_cpus']} logical CPU(s), "
-              f"{sysinfo['platform']} | {sysinfo['python_implementation']} "
-              f"{sysinfo['python_version']}, "
-              f"{'GIL disabled' if sysinfo['gil_disabled_build'] else 'GIL enabled'}")
+    footer = (
+        f"NimbusKV benchmark suite v{VERSION} | {sysinfo['logical_cpus']} logical CPU(s), "
+        f"{sysinfo['platform']} | {sysinfo['python_implementation']} "
+        f"{sysinfo['python_version']}, "
+        f"{'GIL disabled' if sysinfo['gil_disabled_build'] else 'GIL enabled'}"
+    )
     return common.save_chart(fig, "00_summary_dashboard.png", footer_text=footer)
 
 
@@ -118,12 +133,15 @@ def main():
     t_start = time.time()
     sysinfo = common.system_info()
     common.log(f"NimbusKV benchmark suite v{VERSION}")
-    common.log(f"System: {sysinfo['logical_cpus']} logical CPU(s), "
-               f"{sysinfo['python_implementation']} {sysinfo['python_version']}, "
-               f"GIL {'disabled' if sysinfo['gil_disabled_build'] else 'enabled'}")
+    common.log(
+        f"System: {sysinfo['logical_cpus']} logical CPU(s), "
+        f"{sysinfo['python_implementation']} {sysinfo['python_version']}, "
+        f"GIL {'disabled' if sysinfo['gil_disabled_build'] else 'enabled'}"
+    )
 
     try:
         import nimbuskv
+
         nimbuskv_version = getattr(nimbuskv, "__version__", "unknown")
     except ImportError:
         nimbuskv_version = "NOT INSTALLED"
@@ -165,14 +183,17 @@ def main():
 
     dashboard_path = _make_summary_dashboard(all_results, sysinfo)
 
-    common.save_json("meta", {
-        "version": VERSION,
-        "nimbuskv_version": nimbuskv_version,
-        "system": sysinfo,
-        "suites_run": [m.SUITE_ID for m in SUITES],
-        "failures": failures,
-        "elapsed_s": round(time.time() - t_start, 1),
-    })
+    common.save_json(
+        "meta",
+        {
+            "version": VERSION,
+            "nimbuskv_version": nimbuskv_version,
+            "system": sysinfo,
+            "suites_run": [m.SUITE_ID for m in SUITES],
+            "failures": failures,
+            "elapsed_s": round(time.time() - t_start, 1),
+        },
+    )
 
     _write_results_md(sysinfo, nimbuskv_version, all_markdown, dashboard_path, failures)
     report_json_path = _write_report_json(sysinfo, nimbuskv_version, all_json, failures)
@@ -202,24 +223,24 @@ def _write_report_json(sysinfo, nimbuskv_version, all_json, failures):
                 "NimbusKV's real code on this machine."
             ),
             "system": common.redact_sysinfo(sysinfo),
-            "singleCoreCaveat": bool(sysinfo["logical_cpus"] and sysinfo["logical_cpus"] <= 1),
+            "singleCoreCaveat": bool(
+                sysinfo["logical_cpus"] and sysinfo["logical_cpus"] <= 1
+            ),
             "failures": [{"suiteId": sid, "error": err} for sid, err in failures],
         },
         "sections": all_json,
         "runningThisYourself": {
-            "install": "pip install -e . matplotlib cachetools aiocache fakeredis psutil numpy --break-system-packages",
-            "run": "cd bench && python3 main.py",
-            "note": (
-                "Bump VERSION at the top of main.py before each run you want to "
-                "keep distinct. Raw numbers behind every chart are in "
-                "results/*.json. To add a new test, see b00_template_example.py."
-            ),
+            "install": "clone this repo, and install all required dependencies.",
+            "run": "cd bench -> python3 main.py / python -X gil=0 main.py",
+            "note": "While contributing, bump VERSION at the top of main.py before each run you want to keep distinct. Raw numbers behind every chart are in results/*.json. To add a new test, see b00_template_example.py.",
         },
     }
     return common.write_report_json(payload)
 
 
-def _write_results_md(sysinfo, nimbuskv_version, all_markdown, dashboard_path, failures):
+def _write_results_md(
+    sysinfo, nimbuskv_version, all_markdown, dashboard_path, failures
+):
     lines = []
     lines.append(f"# NimbusKV Benchmark Results \u2014 v{VERSION}\n")
     lines.append(
@@ -229,19 +250,31 @@ def _write_results_md(sysinfo, nimbuskv_version, all_markdown, dashboard_path, f
     )
 
     lines.append("## System under test\n")
-    lines.append(common.md_table(
-        ["Field", "Value"],
-        [
-            ["Logical CPUs", sysinfo["logical_cpus"]],
-            ["Physical CPUs", sysinfo["physical_cpus"]],
-            ["Platform", sysinfo["platform"]],
-            ["Processor", sysinfo["processor"]],
-            ["Total RAM", f"{sysinfo['total_mem_gb']} GB"],
-            ["Python", f"{sysinfo['python_implementation']} {sysinfo['python_version']}"],
-            ["GIL", "disabled (free-threaded build)" if sysinfo["gil_disabled_build"] else "enabled (standard build)"],
-            ["nimbuskv version", nimbuskv_version],
-        ],
-    ))
+    lines.append(
+        common.md_table(
+            ["Field", "Value"],
+            [
+                ["Logical CPUs", sysinfo["logical_cpus"]],
+                ["Physical CPUs", sysinfo["physical_cpus"]],
+                ["Platform", sysinfo["platform"]],
+                ["Processor", sysinfo["processor"]],
+                ["Total RAM", f"{sysinfo['total_mem_gb']} GB"],
+                [
+                    "Python",
+                    f"{sysinfo['python_implementation']} {sysinfo['python_version']}",
+                ],
+                [
+                    "GIL",
+                    (
+                        "disabled (free-threaded build)"
+                        if sysinfo["gil_disabled_build"]
+                        else "enabled (standard build)"
+                    ),
+                ],
+                ["nimbuskv version", nimbuskv_version],
+            ],
+        )
+    )
     lines.append("")
 
     if sysinfo["logical_cpus"] and sysinfo["logical_cpus"] <= 1:
@@ -256,15 +289,23 @@ def _write_results_md(sysinfo, nimbuskv_version, all_markdown, dashboard_path, f
         )
 
     if failures:
-        lines.append(f"> **{len(failures)} suite(s) failed this run:** "
-                      f"{', '.join(f[0] for f in failures)}. See their sections below for details.\n")
+        lines.append(
+            f"> **{len(failures)} suite(s) failed this run:** "
+            f"{', '.join(f[0] for f in failures)}. See their sections below for details.\n"
+        )
 
     lines.append("## Summary\n")
     lines.append(f"![Summary dashboard]({dashboard_path})\n")
 
     lines.append("## Contents\n")
     for mod in SUITES:
-        anchor = mod.TITLE.lower().replace(" ", "-").replace(",", "").replace("&", "").replace(":", "")
+        anchor = (
+            mod.TITLE.lower()
+            .replace(" ", "-")
+            .replace(",", "")
+            .replace("&", "")
+            .replace(":", "")
+        )
         anchor = "".join(c for c in anchor if c.isalnum() or c == "-")
         lines.append(f"- [{mod.TITLE}](#{anchor})")
     lines.append("")
