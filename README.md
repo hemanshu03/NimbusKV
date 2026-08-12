@@ -136,24 +136,20 @@ State is rehydrated from the backend on startup (already-expired keys are skippe
 
 ## Architecture
 
+```mermaid
+graph TD
+    A[NimbusKV public API]
+    A --> B[ReactiveStore]
+    B --> B1["in-memory, immutable-snapshot,<br/>optimistic-concurrency core"]
+    B --> B2["readers: lock-free, always"]
+    B --> B3["writers: build new snapshot,<br/>atomic swap, retry on conflict"]
+    B --> B4["adapts to LOCK_FREE_MODE<br/>(free-threaded vs GIL, detected once)"]
+    A --> C[ExpiryScheduler]
+    C --> C1["background thread, min-heap,<br/>fires TTL expiry against the store"]
+    A --> D[PersistenceBackend]
+    D --> D1["write-through mirror + startup rehydration"]
+    D --> D2["NullBackend / SQLiteBackend / RedisBackend"]
 ```
-NimbusKV (public API)
- ├─ ReactiveStore
- │   in-memory, immutable-snapshot,
- │   optimistic-concurrency core
- │   - readers: lock-free, always
- │   - writers: build new snapshot,
- │     atomic swap, retry on conflict
- │   - adapts to LOCK_FREE_MODE
- │     (free-threaded vs GIL, detected once)
- ├─ ExpiryScheduler
- │   background thread, min-heap,
- │   fires TTL expiry against the store
- └─ PersistenceBackend
-     write-through mirror + startup rehydration
-     (NullBackend / SQLiteBackend / RedisBackend)
-```
-
 ---
 
 ## Status
