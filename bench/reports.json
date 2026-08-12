@@ -1,573 +1,573 @@
 {
-    "meta": {
-        "reportTitle": "NimbusKV Benchmark Results",
-        "version": "1.0.0",
-        "nimbuskvVersion": "3.0.1",
-        "generatedAt": "2026-08-12 11:06:24 UTC",
-        "note": "Every number in this report came from actually running NimbusKV's real code on this machine.",
-        "system": {
-            "python_version": "3.12.3",
-            "python_implementation": "CPython",
-            "gil_disabled_build": false,
-            "gil_enabled_runtime": true,
-            "platform": "Linux 6.18.5-fc-v20",
-            "processor": "x86_64",
-            "logical_cpus": 1,
-            "physical_cpus": 1,
-            "total_mem_gb": 4.19,
-            "timestamp": "2026-08-12 11:06:24 UTC"
-        },
-        "singleCoreCaveat": true,
-        "failures": []
+  "meta": {
+    "reportTitle": "NimbusKV Benchmark Results",
+    "version": "1.0.0",
+    "nimbuskvVersion": "3.0.1",
+    "generatedAt": "2026-08-12 15:50:03 India Standard Time",
+    "note": "Every number in this report came from actually running NimbusKV's real code on this machine.",
+    "system": {
+      "python_version": "3.14.6",
+      "python_implementation": "CPython",
+      "gil_disabled_build": true,
+      "gil_enabled_runtime": false,
+      "platform": "Windows 11",
+      "processor": "AMD64",
+      "logical_cpus": 16,
+      "physical_cpus": 8,
+      "total_mem_gb": 16.54,
+      "timestamp": "2026-08-12 15:50:03 India Standard Time"
     },
-    "sections": {
-        "b01_correctness": {
-            "title": "1. Correctness First",
-            "passed": 6,
-            "total": 6,
-            "tests": [
-                {
-                    "name": "atomic_no_lost_updates",
-                    "passed": true,
-                    "detail": {
-                        "n_threads": 32,
-                        "incs_per_thread": 2000,
-                        "expected": 64000,
-                        "actual": 64000,
-                        "elapsed_s": 0.1403807840000013,
-                        "ops_per_sec": 455902.8534845581
-                    }
-                },
-                {
-                    "name": "mset_atomicity_naive_get_get (expected gotcha)",
-                    "passed": true,
-                    "detail": {
-                        "n_readers": 8,
-                        "writer_iters": 20000,
-                        "violations": 17,
-                        "elapsed_s": 0.9265811420000034,
-                        "writes_per_sec": 21584.725927866904,
-                        "note": "get()+get() is two independent reads; use snapshot() for a consistent multi-key view"
-                    }
-                },
-                {
-                    "name": "mset_atomicity_via_snapshot",
-                    "passed": true,
-                    "detail": {
-                        "n_readers": 8,
-                        "writer_iters": 20000,
-                        "violations": 0,
-                        "elapsed_s": 0.7163500279999937,
-                        "writes_per_sec": 27919.312093612672
-                    }
-                },
-                {
-                    "name": "conflict_retry_exceeded_reachable",
-                    "passed": true,
-                    "detail": {
-                        "max_retries_configured": 2,
-                        "n_writers": 24,
-                        "n_that_hit_retry_exceeded": 22
-                    }
-                },
-                {
-                    "name": "ttl_reschedule_no_resurrection",
-                    "passed": true,
-                    "detail": {
-                        "trials": 200,
-                        "unexpected_alive_after_short_ttl": 0
-                    }
-                },
-                {
-                    "name": "subscriber_exception_isolated",
-                    "passed": true,
-                    "detail": {
-                        "writes_survived_bad_subscriber": true
-                    }
-                }
-            ],
-            "keyFinding": "mset()'s atomicity guarantee covers the write (one HAMT swap). It does not automatically give you a consistent multi-key read if you call get() twice -- for that you need snapshot()."
+    "singleCoreCaveat": false,
+    "failures": []
+  },
+  "sections": {
+    "b01_correctness": {
+      "title": "1. Correctness First",
+      "passed": 6,
+      "total": 6,
+      "tests": [
+        {
+          "name": "atomic_no_lost_updates",
+          "passed": true,
+          "detail": {
+            "n_threads": 32,
+            "incs_per_thread": 2000,
+            "expected": 64000,
+            "actual": 64000,
+            "elapsed_s": 0.8198160000611097,
+            "ops_per_sec": 78066.29779759044
+          }
         },
-        "b02_throughput_latency": {
-            "title": "2. Throughput & Latency",
-            "singleThreaded": {
-                "context": "Single-threaded, no contention, on a warm 10,000-key store.",
-                "unit": "microseconds",
-                "rows": [
-                    {
-                        "operation": "get() hit",
-                        "p50": 0.28699999177206337,
-                        "p99": 1.0619999954997184,
-                        "p999": 47.523999995746635
-                    },
-                    {
-                        "operation": "get() miss",
-                        "p50": 0.3239999983861708,
-                        "p99": 0.873000004730784,
-                        "p999": 6.138999992799654
-                    },
-                    {
-                        "operation": "set() new key",
-                        "p50": 2.3190000035810954,
-                        "p99": 34.10600000108843,
-                        "p999": 129.17499999787196
-                    },
-                    {
-                        "operation": "set() overwrite",
-                        "p50": 5.154999996648257,
-                        "p99": 14.641999996456434,
-                        "p999": 44.64200000597884
-                    },
-                    {
-                        "operation": "delete()",
-                        "p50": 2.308000006223665,
-                        "p99": 6.478999992509671,
-                        "p999": 43.443000009801835
-                    },
-                    {
-                        "operation": "atomic() uncontended",
-                        "p50": 2.348999998957879,
-                        "p99": 6.8620000064356645,
-                        "p999": 36.132999994720194
-                    },
-                    {
-                        "operation": "mset() 10 keys",
-                        "p50": 11.385000007635426,
-                        "p99": 35.78900000889007,
-                        "p999": 55.122000006235794
-                    }
-                ]
-            },
-            "multithreaded": {
-                "unit": "ops/sec",
-                "get": [
-                    {
-                        "threads": 1,
-                        "opsPerSec": 2737874.4803331755
-                    },
-                    {
-                        "threads": 2,
-                        "opsPerSec": 2751770.8302885396
-                    },
-                    {
-                        "threads": 4,
-                        "opsPerSec": 2802127.886222122
-                    },
-                    {
-                        "threads": 8,
-                        "opsPerSec": 2766903.6273732777
-                    },
-                    {
-                        "threads": 16,
-                        "opsPerSec": 2769189.5632231296
-                    },
-                    {
-                        "threads": 32,
-                        "opsPerSec": 2696757.697862821
-                    }
-                ],
-                "setDisjointKeys": [
-                    {
-                        "threads": 1,
-                        "opsPerSec": 231165.15650090732
-                    },
-                    {
-                        "threads": 2,
-                        "opsPerSec": 264734.7525560589
-                    },
-                    {
-                        "threads": 4,
-                        "opsPerSec": 252226.9503787771
-                    },
-                    {
-                        "threads": 8,
-                        "opsPerSec": 248720.3565458389
-                    },
-                    {
-                        "threads": 16,
-                        "opsPerSec": 234567.54388053092
-                    },
-                    {
-                        "threads": 32,
-                        "opsPerSec": 229755.95994975851
-                    }
-                ],
-                "atomicHotKey": [
-                    {
-                        "threads": 1,
-                        "opsPerSec": 476142.13482670044
-                    },
-                    {
-                        "threads": 2,
-                        "opsPerSec": 479334.7273428941
-                    },
-                    {
-                        "threads": 4,
-                        "opsPerSec": 443465.4312250578
-                    },
-                    {
-                        "threads": 8,
-                        "opsPerSec": 405632.46288243425
-                    },
-                    {
-                        "threads": 16,
-                        "opsPerSec": 398360.37118577154
-                    },
-                    {
-                        "threads": 32,
-                        "opsPerSec": 385095.6545794478
-                    }
-                ]
-            },
-            "methodologyNote": "Every multithreaded measurement in this suite synchronizes thread start on a threading.Barrier before starting the clock. An earlier version of this harness let threads started earlier in a plain for t in threads: t.start() loop accumulate unmeasured head-start time, which inflated apparent throughput at higher thread counts -- a measurement artifact, not real scaling."
+        {
+          "name": "mset_atomicity_naive_get_get (expected gotcha)",
+          "passed": true,
+          "detail": {
+            "n_readers": 8,
+            "writer_iters": 20000,
+            "violations": 61473,
+            "elapsed_s": 0.16515140002593398,
+            "writes_per_sec": 121101.00184957178,
+            "note": "get()+get() is two independent reads; use snapshot() for a consistent multi-key view"
+          }
         },
-        "b03_scalability_memory_ttl_subscribe": {
-            "title": "3. Scalability, Memory, TTL Scheduler & Subscriber Overhead",
-            "scalability": {
-                "unit": "microseconds",
-                "rows": [
-                    {
-                        "keys": 100,
-                        "getP50": 0.2480000063087573,
-                        "setP50": 2.053999992313038
-                    },
-                    {
-                        "keys": 1000,
-                        "getP50": 0.20800000299914245,
-                        "setP50": 2.127999991330398
-                    },
-                    {
-                        "keys": 10000,
-                        "getP50": 0.23600000531587284,
-                        "setP50": 2.1550000042225292
-                    },
-                    {
-                        "keys": 100000,
-                        "getP50": 0.4770000003873065,
-                        "setP50": 3.774999996153383
-                    },
-                    {
-                        "keys": 500000,
-                        "getP50": 0.4680000103007842,
-                        "setP50": 2.939999987461306
-                    }
-                ]
-            },
-            "memoryOverheadVsDict": {
-                "unit": "MB",
-                "rows": [
-                    {
-                        "keys": 10000,
-                        "dictMb": 0.0,
-                        "nimbuskvMb": 0.0,
-                        "ratio": 0.0,
-                        "bytesPerKeyNimbuskv": 0.0,
-                        "bytesPerKeyDict": 0.4
-                    },
-                    {
-                        "keys": 100000,
-                        "dictMb": 0.31,
-                        "nimbuskvMb": 0.0,
-                        "ratio": 0.0,
-                        "bytesPerKeyNimbuskv": 0.0,
-                        "bytesPerKeyDict": 3.1
-                    },
-                    {
-                        "keys": 500000,
-                        "dictMb": 43.13,
-                        "nimbuskvMb": 50.16,
-                        "ratio": 1.16,
-                        "bytesPerKeyNimbuskv": 100.3,
-                        "bytesPerKeyDict": 86.3
-                    }
-                ]
-            },
-            "ttlAccuracy": {
-                "samples": 300,
-                "requestedTtlMs": 150.0,
-                "p50JitterMs": 0.5138250000186473,
-                "p99JitterMs": 0.872249999991942,
-                "maxJitterMs": 0.9131189999948275
-            },
-            "ttlSchedulerOverhead": {
-                "unit": "microseconds",
-                "rows": [
-                    {
-                        "pendingTimers": 10,
-                        "p50": 3.1259999957455875,
-                        "p99": 8.074999982454756
-                    },
-                    {
-                        "pendingTimers": 1000,
-                        "p50": 3.2979999957660766,
-                        "p99": 4.945999990013661
-                    },
-                    {
-                        "pendingTimers": 10000,
-                        "p50": 3.312999979243614,
-                        "p99": 5.066999989367105
-                    },
-                    {
-                        "pendingTimers": 100000,
-                        "p50": 3.7080000083733466,
-                        "p99": 57.11599999358441
-                    }
-                ]
-            },
-            "subscriberOverhead": {
-                "unit": "microseconds",
-                "rows": [
-                    {
-                        "subscribers": 0,
-                        "setP50": 2.0260000042071624,
-                        "setMean": 2.2336539998946137
-                    },
-                    {
-                        "subscribers": 1,
-                        "setP50": 2.158999990342636,
-                        "setMean": 3.55011800019156
-                    },
-                    {
-                        "subscribers": 10,
-                        "setP50": 2.846000000999993,
-                        "setMean": 3.0916079995790824
-                    },
-                    {
-                        "subscribers": 100,
-                        "setP50": 9.830000010424556,
-                        "setMean": 11.57559999995783
-                    },
-                    {
-                        "subscribers": 1000,
-                        "setP50": 83.83299999081828,
-                        "setMean": 92.47103400053902
-                    }
-                ]
-            }
+        {
+          "name": "mset_atomicity_via_snapshot",
+          "passed": true,
+          "detail": {
+            "n_readers": 8,
+            "writer_iters": 20000,
+            "violations": 0,
+            "elapsed_s": 0.2258835999527946,
+            "writes_per_sec": 88541.17786408408
+          }
         },
-        "b04_async_persistence_breaking": {
-            "title": "4. Async Honesty, Persistence Backends & Breaking Points",
-            "asyncVsSync": {
-                "unit": "microseconds",
-                "rows": [
-                    {
-                        "path": "sync set(), memory-only",
-                        "p50": 2.9170000175327004
-                    },
-                    {
-                        "path": "async aset(), memory-only",
-                        "p50": 3.1139999805418483
-                    },
-                    {
-                        "path": "sync set(), SQLite-backed",
-                        "p50": 1269.6600000197122
-                    },
-                    {
-                        "path": "async aset(), SQLite-backed",
-                        "p50": 759.358999999904
-                    }
-                ],
-                "memoryAsyncMultiplier": 1.0675351257542252,
-                "sqliteIoMultiplier": 435.2622531328041
-            },
-            "persistenceBackends": {
-                "unit": "microseconds",
-                "rows": [
-                    {
-                        "backend": "memory",
-                        "setP50": 2.8979999910916376,
-                        "setP99": 9.121999994476937
-                    },
-                    {
-                        "backend": "sqlite",
-                        "setP50": 640.9599999983584,
-                        "setP99": 855.1070000066829
-                    },
-                    {
-                        "backend": "redis_fake",
-                        "setP50": 92.3860000057175,
-                        "setP99": 176.5039999952478
-                    }
-                ]
-            },
-            "rehydration": {
-                "unit": "milliseconds",
-                "rows": [
-                    {
-                        "keys": 1000,
-                        "timeMs": 4.3857899999864
-                    },
-                    {
-                        "keys": 10000,
-                        "timeMs": 36.92080000001852
-                    },
-                    {
-                        "keys": 50000,
-                        "timeMs": 268.24148599999376
-                    }
-                ]
-            },
-            "breakingPoint": {
-                "conflictRetryThreshold": {
-                    "totalWriters": 32,
-                    "rows": [
-                        {
-                            "maxRetries": 50,
-                            "writersHitConflictRetryExceeded": 0
-                        },
-                        {
-                            "maxRetries": 20,
-                            "writersHitConflictRetryExceeded": 12
-                        },
-                        {
-                            "maxRetries": 10,
-                            "writersHitConflictRetryExceeded": 22
-                        },
-                        {
-                            "maxRetries": 5,
-                            "writersHitConflictRetryExceeded": 27
-                        },
-                        {
-                            "maxRetries": 2,
-                            "writersHitConflictRetryExceeded": 30
-                        },
-                        {
-                            "maxRetries": 1,
-                            "writersHitConflictRetryExceeded": 31
-                        }
-                    ]
-                },
-                "bigValueStructuralSharing": {
-                    "setup": "Dropped a 10MB string into the store, then measured set() on 500 unrelated keys",
-                    "p50Us": 2.1399999923232826,
-                    "p99Us": 4.373999985318733,
-                    "maxUs": 29.802000000245243
-                },
-                "scalabilityTo1M": {
-                    "unit": "microseconds",
-                    "rows": [
-                        {
-                            "keys": 10000,
-                            "setP50": 1.9619999989117787,
-                            "setP99": 6.026999983532733
-                        },
-                        {
-                            "keys": 100000,
-                            "setP50": 2.35900000689071,
-                            "setP99": 5.774999976893014
-                        },
-                        {
-                            "keys": 500000,
-                            "setP50": 2.840000007608978,
-                            "setP99": 9.422999994512793
-                        },
-                        {
-                            "keys": 1000000,
-                            "setP50": 3.603999999768348,
-                            "setP99": 8.120000018152496
-                        }
-                    ]
-                }
-            }
+        {
+          "name": "conflict_retry_exceeded_reachable",
+          "passed": true,
+          "detail": {
+            "max_retries_configured": 2,
+            "n_writers": 24,
+            "n_that_hit_retry_exceeded": 22
+          }
         },
-        "b05_comparative": {
-            "title": "5. Comparative: NimbusKV vs. dict+Lock, cachetools, aiocache, shelve",
-            "singleThreadedLatency": {
-                "unit": "microseconds",
-                "rows": [
-                    {
-                        "library": "dict+Lock",
-                        "setP50": 0.5169999894860666,
-                        "getP50": 0.49100000865109905,
-                        "nativePerKeyTtl": "No"
-                    },
-                    {
-                        "library": "NimbusKV (ReactiveStore)",
-                        "setP50": 2.1190000154547306,
-                        "getP50": 0.38199999607968493,
-                        "nativePerKeyTtl": "Yes"
-                    },
-                    {
-                        "library": "cachetools.TTLCache",
-                        "setP50": 2.201000000923159,
-                        "getP50": 1.7570000068189984,
-                        "nativePerKeyTtl": "per-cache-instance, not per-key"
-                    },
-                    {
-                        "library": "shelve (disk-backed)",
-                        "setP50": 2.63300000824529,
-                        "getP50": 3.6570000077063014,
-                        "nativePerKeyTtl": "No"
-                    }
-                ],
-                "honestRead": {
-                    "setRatioDictLockFaster": 4.0986461480611664,
-                    "nimbuskvFasterOnGet": true
-                }
-            },
-            "multithreadedThroughput": {
-                "unit": "ops/sec",
-                "series": {
-                    "dict+Lock": [
-                        {
-                            "threads": 1,
-                            "opsPerSec": 1310095.7131294613
-                        },
-                        {
-                            "threads": 4,
-                            "opsPerSec": 1303059.373809125
-                        },
-                        {
-                            "threads": 16,
-                            "opsPerSec": 1296762.0518984902
-                        }
-                    ],
-                    "NimbusKV (ReactiveStore)": [
-                        {
-                            "threads": 1,
-                            "opsPerSec": 273862.9261232253
-                        },
-                        {
-                            "threads": 4,
-                            "opsPerSec": 289394.7645214625
-                        },
-                        {
-                            "threads": 16,
-                            "opsPerSec": 246911.96520146405
-                        }
-                    ],
-                    "cachetools.TTLCache": [
-                        {
-                            "threads": 1,
-                            "opsPerSec": 273037.5477569716
-                        },
-                        {
-                            "threads": 4,
-                            "opsPerSec": 245477.57661434502
-                        },
-                        {
-                            "threads": 16,
-                            "opsPerSec": 244592.17008418904
-                        }
-                    ]
-                }
-            },
-            "asyncOverhead": {
-                "unit": "microseconds",
-                "rows": [
-                    {
-                        "library": "aiocache (memory)",
-                        "awaitSetP50": 5.931999993435966
-                    },
-                    {
-                        "library": "NimbusKV (memory)",
-                        "awaitSetP50": 3.10000001491062
-                    }
-                ]
-            }
+        {
+          "name": "ttl_reschedule_no_resurrection",
+          "passed": true,
+          "detail": {
+            "trials": 200,
+            "unexpected_alive_after_short_ttl": 0
+          }
+        },
+        {
+          "name": "subscriber_exception_isolated",
+          "passed": true,
+          "detail": {
+            "writes_survived_bad_subscriber": true
+          }
         }
+      ],
+      "keyFinding": "mset()'s atomicity guarantee covers the write (one HAMT swap). It does not automatically give you a consistent multi-key read if you call get() twice -- for that you need snapshot()."
     },
-    "runningThisYourself": {
+    "b02_throughput_latency": {
+      "title": "2. Throughput & Latency",
+      "singleThreaded": {
+        "context": "Single-threaded, no contention, on a warm 10,000-key store.",
+        "unit": "microseconds",
+        "rows": [
+          {
+            "operation": "get() hit",
+            "p50": 0.900006853044033,
+            "p99": 3.500026650726795,
+            "p999": 17.1000137925148
+          },
+          {
+            "operation": "get() miss",
+            "p50": 0.800006091594696,
+            "p99": 3.0999071896076202,
+            "p999": 3.6999117583036423
+          },
+          {
+            "operation": "set() new key",
+            "p50": 2.800021320581436,
+            "p99": 9.399955160915852,
+            "p999": 23.699947632849216
+          },
+          {
+            "operation": "set() overwrite",
+            "p50": 6.00004568696022,
+            "p99": 16.10000617802143,
+            "p999": 55.70007488131523
+          },
+          {
+            "operation": "delete()",
+            "p50": 2.9999064281582832,
+            "p99": 6.199930794537067,
+            "p999": 15.600002370774746
+          },
+          {
+            "operation": "atomic() uncontended",
+            "p50": 2.500019036233425,
+            "p99": 6.100046448409557,
+            "p999": 14.499993994832039
+          },
+          {
+            "operation": "mset() 10 keys",
+            "p50": 12.499978765845299,
+            "p99": 43.39998122304678,
+            "p999": 65.20003080368042
+          }
+        ]
+      },
+      "multithreaded": {
+        "unit": "ops/sec",
+        "get": [
+          {
+            "threads": 1,
+            "opsPerSec": 1749011.6515978696
+          },
+          {
+            "threads": 2,
+            "opsPerSec": 2604666.299735895
+          },
+          {
+            "threads": 4,
+            "opsPerSec": 3766296.8961741184
+          },
+          {
+            "threads": 8,
+            "opsPerSec": 3398002.8475328707
+          },
+          {
+            "threads": 16,
+            "opsPerSec": 2942395.3928957335
+          },
+          {
+            "threads": 32,
+            "opsPerSec": 2893476.8311424013
+          }
+        ],
+        "setDisjointKeys": [
+          {
+            "threads": 1,
+            "opsPerSec": 267379.31393325486
+          },
+          {
+            "threads": 2,
+            "opsPerSec": 232598.40589283517
+          },
+          {
+            "threads": 4,
+            "opsPerSec": 174528.25198599332
+          },
+          {
+            "threads": 8,
+            "opsPerSec": 80545.33425879954
+          },
+          {
+            "threads": 16,
+            "opsPerSec": 52066.863973133186
+          },
+          {
+            "threads": 32,
+            "opsPerSec": 51079.67717256104
+          }
+        ],
+        "atomicHotKey": [
+          {
+            "threads": 1,
+            "opsPerSec": 439674.3142702629
+          },
+          {
+            "threads": 2,
+            "opsPerSec": 438798.44522342185
+          },
+          {
+            "threads": 4,
+            "opsPerSec": 294263.30895089125
+          },
+          {
+            "threads": 8,
+            "opsPerSec": 110596.95727345253
+          },
+          {
+            "threads": 16,
+            "opsPerSec": 57037.73961228571
+          },
+          {
+            "threads": 32,
+            "opsPerSec": 55589.22765748005
+          }
+        ]
+      },
+      "methodologyNote": "Every multithreaded measurement in this suite synchronizes thread start on a threading.Barrier before starting the clock. An earlier version of this harness let threads started earlier in a plain for t in threads: t.start() loop accumulate unmeasured head-start time, which inflated apparent throughput at higher thread counts -- a measurement artifact, not real scaling."
+    },
+    "b03_scalability_memory_ttl_subscribe": {
+      "title": "3. Scalability, Memory, TTL Scheduler & Subscriber Overhead",
+      "scalability": {
+        "unit": "microseconds",
+        "rows": [
+          {
+            "keys": 100,
+            "getP50": 0.400003045797348,
+            "setP50": 2.00001522898674
+          },
+          {
+            "keys": 1000,
+            "getP50": 0.300002284348011,
+            "setP50": 2.00001522898674
+          },
+          {
+            "keys": 10000,
+            "getP50": 0.300002284348011,
+            "setP50": 1.900014467537403
+          },
+          {
+            "keys": 100000,
+            "getP50": 0.400003045797348,
+            "setP50": 2.200016751885414
+          },
+          {
+            "keys": 500000,
+            "getP50": 0.500003807246685,
+            "setP50": 2.500019036233425
+          }
+        ]
+      },
+      "memoryOverheadVsDict": {
+        "unit": "MB",
+        "rows": [
+          {
+            "keys": 10000,
+            "dictMb": 0.38,
+            "nimbuskvMb": 0.0,
+            "ratio": 0.0,
+            "bytesPerKeyNimbuskv": 0.0,
+            "bytesPerKeyDict": 37.7
+          },
+          {
+            "keys": 100000,
+            "dictMb": 5.95,
+            "nimbuskvMb": 0.06,
+            "ratio": 0.01,
+            "bytesPerKeyNimbuskv": 0.6,
+            "bytesPerKeyDict": 59.5
+          },
+          {
+            "keys": 500000,
+            "dictMb": 15.54,
+            "nimbuskvMb": -1.77,
+            "ratio": -0.11,
+            "bytesPerKeyNimbuskv": -3.5,
+            "bytesPerKeyDict": 31.1
+          }
+        ]
+      },
+      "ttlAccuracy": {
+        "samples": 300,
+        "requestedTtlMs": 150.0,
+        "p50JitterMs": 5.021299957297748,
+        "p99JitterMs": 8.004800090566283,
+        "maxJitterMs": 8.678100095130509
+      },
+      "ttlSchedulerOverhead": {
+        "unit": "microseconds",
+        "rows": [
+          {
+            "pendingTimers": 10,
+            "p50": 5.699926987290382,
+            "p99": 21.699932403862476
+          },
+          {
+            "pendingTimers": 1000,
+            "p50": 5.500041879713535,
+            "p99": 22.799940779805183
+          },
+          {
+            "pendingTimers": 10000,
+            "p50": 4.900037311017513,
+            "p99": 21.400046534836292
+          },
+          {
+            "pendingTimers": 100000,
+            "p50": 4.299916326999664,
+            "p99": 26.29996743053198
+          }
+        ]
+      },
+      "subscriberOverhead": {
+        "unit": "microseconds",
+        "rows": [
+          {
+            "subscribers": 0,
+            "setP50": 2.500019036233425,
+            "setMean": 2.9366002418100834
+          },
+          {
+            "subscribers": 1,
+            "setP50": 2.100015990436077,
+            "setMean": 2.3224002216011286
+          },
+          {
+            "subscribers": 10,
+            "setP50": 4.00003045797348,
+            "setMean": 4.303600173443556
+          },
+          {
+            "subscribers": 100,
+            "setP50": 19.799917936325073,
+            "setMean": 19.046200206503272
+          },
+          {
+            "subscribers": 1000,
+            "setP50": 104.59998156875372,
+            "setMean": 115.6437995377928
+          }
+        ]
+      }
+    },
+    "b04_async_persistence_breaking": {
+      "title": "4. Async Honesty, Persistence Backends & Breaking Points",
+      "asyncVsSync": {
+        "unit": "microseconds",
+        "rows": [
+          {
+            "path": "sync set(), memory-only",
+            "p50": 4.600035026669502
+          },
+          {
+            "path": "async aset(), memory-only",
+            "p50": 5.09992241859436
+          },
+          {
+            "path": "sync set(), SQLite-backed",
+            "p50": 2569.3000061437488
+          },
+          {
+            "path": "async aset(), SQLite-backed",
+            "p50": 2758.600050583482
+          }
+        ],
+        "memoryAsyncMultiplier": 1.1086703446879587,
+        "sqliteIoMultiplier": 558.5392266032293
+      },
+      "persistenceBackends": {
+        "unit": "microseconds",
+        "rows": [
+          {
+            "backend": "memory",
+            "setP50": 4.800036549568176,
+            "setP99": 26.699970476329327
+          },
+          {
+            "backend": "sqlite",
+            "setP50": 2281.100023537874,
+            "setP99": 3617.5999557599425
+          },
+          {
+            "backend": "redis_fake",
+            "setP50": 126.00002810359001,
+            "setP99": 197.79999274760485
+          }
+        ]
+      },
+      "rehydration": {
+        "unit": "milliseconds",
+        "rows": [
+          {
+            "keys": 1000,
+            "timeMs": 6.0128000332042575
+          },
+          {
+            "keys": 10000,
+            "timeMs": 27.545099961571395
+          },
+          {
+            "keys": 50000,
+            "timeMs": 175.2146000508219
+          }
+        ]
+      },
+      "breakingPoint": {
+        "conflictRetryThreshold": {
+          "totalWriters": 32,
+          "rows": [
+            {
+              "maxRetries": 50,
+              "writersHitConflictRetryExceeded": 0
+            },
+            {
+              "maxRetries": 20,
+              "writersHitConflictRetryExceeded": 11
+            },
+            {
+              "maxRetries": 10,
+              "writersHitConflictRetryExceeded": 21
+            },
+            {
+              "maxRetries": 5,
+              "writersHitConflictRetryExceeded": 26
+            },
+            {
+              "maxRetries": 2,
+              "writersHitConflictRetryExceeded": 29
+            },
+            {
+              "maxRetries": 1,
+              "writersHitConflictRetryExceeded": 31
+            }
+          ]
+        },
+        "bigValueStructuralSharing": {
+          "setup": "Dropped a 10MB string into the store, then measured set() on 500 unrelated keys",
+          "p50Us": 2.00001522898674,
+          "p99Us": 4.00003045797348,
+          "maxUs": 11.499971151351929
+        },
+        "scalabilityTo1M": {
+          "unit": "microseconds",
+          "rows": [
+            {
+              "keys": 10000,
+              "setP50": 1.7998972907662392,
+              "setP99": 2.300017513334751
+            },
+            {
+              "keys": 100000,
+              "setP50": 2.300017513334751,
+              "setP99": 4.100031219422817
+            },
+            {
+              "keys": 500000,
+              "setP50": 2.400018274784088,
+              "setP99": 4.300032742321491
+            },
+            {
+              "keys": 1000000,
+              "setP50": 3.00002284348011,
+              "setP99": 5.00003807246685
+            }
+          ]
+        }
+      }
+    },
+    "b05_comparative": {
+      "title": "5. Comparative: NimbusKV vs. dict+Lock, cachetools, aiocache, shelve",
+      "singleThreadedLatency": {
+        "unit": "microseconds",
+        "rows": [
+          {
+            "library": "dict+Lock",
+            "setP50": 0.500003807246685,
+            "getP50": 0.500003807246685,
+            "nativePerKeyTtl": "No"
+          },
+          {
+            "library": "NimbusKV (ReactiveStore)",
+            "setP50": 2.09989957511425,
+            "getP50": 0.500003807246685,
+            "nativePerKeyTtl": "Yes"
+          },
+          {
+            "library": "cachetools.TTLCache",
+            "setP50": 2.100015990436077,
+            "getP50": 1.800013706088066,
+            "nativePerKeyTtl": "per-cache-instance, not per-key"
+          },
+          {
+            "library": "shelve (disk-backed)",
+            "setP50": 1856.2000477686524,
+            "getP50": 14.499993994832039,
+            "nativePerKeyTtl": "No"
+          }
+        ],
+        "honestRead": {
+          "setRatioDictLockFaster": 4.19976717112922,
+          "nimbuskvFasterOnGet": false
+        }
+      },
+      "multithreadedThroughput": {
+        "unit": "ops/sec",
+        "series": {
+          "dict+Lock": [
+            {
+              "threads": 1,
+              "opsPerSec": 1499061.4500676312
+            },
+            {
+              "threads": 4,
+              "opsPerSec": 919120.1935831476
+            },
+            {
+              "threads": 16,
+              "opsPerSec": 235647.366905865
+            }
+          ],
+          "NimbusKV (ReactiveStore)": [
+            {
+              "threads": 1,
+              "opsPerSec": 380860.9892337329
+            },
+            {
+              "threads": 4,
+              "opsPerSec": 233678.58630910513
+            },
+            {
+              "threads": 16,
+              "opsPerSec": 72613.89715879374
+            }
+          ],
+          "cachetools.TTLCache": [
+            {
+              "threads": 1,
+              "opsPerSec": 342134.2577434264
+            },
+            {
+              "threads": 4,
+              "opsPerSec": 147778.61947677494
+            },
+            {
+              "threads": 16,
+              "opsPerSec": 141069.3087617485
+            }
+          ]
+        }
+      },
+      "asyncOverhead": {
+        "unit": "microseconds",
+        "rows": [
+          {
+            "library": "aiocache (memory)",
+            "awaitSetP50": 6.700051017105579
+          },
+          {
+            "library": "NimbusKV (memory)",
+            "awaitSetP50": 3.500026650726795
+          }
+        ]
+      }
+    }
+  },
+  "runningThisYourself": {
         "install": "clone this repo, and install all required dependencies.",
         "run": "cd bench -> python3 main.py / python -X gil=0 main.py",
         "note": "While contributing, bump VERSION at the top of main.py before each run you want to keep distinct. Raw numbers behind every chart are in results/*.json. To add a new test, see b00_template_example.py."
