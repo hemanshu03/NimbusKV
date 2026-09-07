@@ -1,0 +1,80 @@
+name: Bug report
+description: Something in NimbusKV isn't working the way it should
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. The more precise
+        the repro, the faster it gets fixed — especially for
+        anything concurrency-related, where the exact scenario
+        matters a lot.
+
+  - type: input
+    id: version
+    attributes:
+      label: NimbusKV version
+      description: Output of `pip show nimbuskv` (or the version pinned in your lockfile)
+      placeholder: "3.0.2"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version and build
+      description: Output of `python3 -VV`. Please note if this is a free-threaded build (3.13t / 3.14t).
+      placeholder: "3.12.3, standard GIL build"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Backend in use
+      options:
+        - memory (default)
+        - sqlite
+        - redis
+        - custom PersistenceBackend
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: >
+        A small, runnable code snippet that triggers the issue. For
+        anything involving threads/concurrency, please include
+        thread counts and, if you have it, how reliably it
+        reproduces (e.g. "1 in 20 runs").
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the full traceback if there is one.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I've checked this isn't already reported in an existing issue
+          required: true
+        - label: I've included the NimbusKV version and Python build above
+          required: true
