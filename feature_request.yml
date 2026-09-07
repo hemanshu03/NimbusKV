@@ -1,0 +1,49 @@
+name: Feature request
+description: Suggest something NimbusKV doesn't do yet
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing, it's worth a quick check against the
+        [roadmap](../../blob/main/docs/ROADMAP.md) — this might
+        already be planned (e.g. batched persistence, sharding
+        refinements, the Warehouse component) or might be a
+        deliberate non-goal.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: >
+        Describe the situation you're in, not just the feature you
+        want — the "why" usually shapes the right design more than
+        the "what."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API / behavior
+      description: A sketch is fine — doesn't need to be final.
+      render: python
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What are you doing today instead?
+      description: >
+        E.g. working around it with your own wrapper, using a
+        different library for this part, or just living without it.
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: >
+            This is about the core `nimbuskv` library's behavior,
+            not the planned Warehouse (v4.0) component
+        - label: I've checked this isn't already covered in the roadmap
